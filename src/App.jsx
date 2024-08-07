@@ -1,35 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import SearchIcon from "./assets/search.svg";
+import MovieCard from "./components/MovieCard";
+
+const apiKey = import.meta.env.VITE_API_KEY;
+const API_URL = `https://www.omdbapi.com/?apikey=${apiKey}`;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [movies, setMovies] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchMovies = async (title) => {
+    const response = await fetch(`${API_URL}&s=${title}`);
+    const data = await response.json();
+    console.log(data.Search);
+    setMovies(data.Search);
+  };
+
+  // useEffect((searchTerm) => {
+  //   searchMovies(searchTerm);
+  // }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app">
+      <h1>MovieLand</h1>
+      <div className="search">
+        <input
+          placeholder="Search for movies.."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <img
+          src={SearchIcon}
+          alt="search"
+          onClick={() => searchMovies(searchTerm)}
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      {movies.length > 0 ? (
+        <div className="container">
+          {movies.map((movie, index) => (
+            <MovieCard key={`${movie}-${index}`} movie={movie} />
+          ))}
+        </div>
+      ) : (
+        <div className="empty">
+          <h2>No movies found</h2>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
